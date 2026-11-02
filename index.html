@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Coach Speak Bot · DH 101 Generative Make</title>
+<meta name="description" content="A Tracery text generator that yells like a defensive line coach. DH 101 generative make by Jake Tempesta, Denison University.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Permanent+Marker&family=Saira+Condensed:wght@400;600;800&family=IBM+Plex+Mono:wght@400&family=Source+Serif+4:ital,wght@0,400;0,600;1,400&display=swap">
+<style>
+:root{
+  --bg:#eef2ee; --board:#fbfdfb; --ink:#14251c; --muted:#4f6156; --line:#cfdad2;
+  --accent:#c94d06; --accent-ink:#fff; --turf:#1f6b3f;
+  --f-yell:"Permanent Marker","Comic Sans MS",cursive;
+  --f-ui:"Saira Condensed","Arial Narrow",sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,monospace;
+  --f-body:"Source Serif 4",Georgia,serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root{
+  --bg:#0c1711; --board:#13231a; --ink:#eaf2ec; --muted:#9fb3a6; --line:#26402f;
+  --accent:#ff7a2e; --accent-ink:#1a0b02; --turf:#4fb07a; color-scheme:dark}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:18px;line-height:1.6}
+.skip{position:absolute;left:-999px}.skip:focus{left:16px;top:16px;background:var(--board);padding:8px;z-index:9}
+.wrap{max-width:820px;margin:0 auto;padding:32px 16px 64px}
+a{color:var(--turf)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:3px solid var(--turf);outline-offset:2px}
+.kicker{font-family:var(--f-ui);font-size:.9rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:0}
+h1{font-family:var(--f-ui);font-weight:800;font-size:clamp(2.2rem,7vw,3.2rem);letter-spacing:.02em;text-transform:uppercase;margin:.1em 0 .3em;line-height:1}
+h1 span{color:var(--accent)}
+h2{font-family:var(--f-ui);font-weight:800;font-size:1.6rem;text-transform:uppercase;letter-spacing:.03em;margin:2.2em 0 .5em;border-bottom:2px solid var(--line);padding-bottom:.2em}
+h3{font-family:var(--f-ui);font-weight:600;font-size:1.2rem;text-transform:uppercase;letter-spacing:.06em;margin:1.5em 0 .4em}
+dl.facts{display:grid;grid-template-columns:auto 1fr;gap:4px 16px;margin:1em 0 0;font-size:.95rem}
+dl.facts dt{font-family:var(--f-ui);font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--muted)}
+dl.facts dd{margin:0}
+nav.toc{margin-top:1.4em;font-family:var(--f-ui);font-size:1rem;letter-spacing:.04em}
+nav.toc ul{list-style:none;padding:0;margin:0;display:flex;flex-wrap:wrap;gap:6px 16px}
+
+/* bot */
+.bot{margin-top:2em;display:grid;gap:16px;font-family:var(--f-ui)}
+.board{background:var(--board);border:2px solid var(--line);border-radius:6px;padding:28px 24px 22px;min-height:190px;display:grid;align-content:center;gap:14px;position:relative}
+.board::before{content:"";position:absolute;inset:10px;border:1px dashed var(--line);border-radius:3px;pointer-events:none}
+#yell{font-family:var(--f-yell);font-size:clamp(1.3rem,4.2vw,2.05rem);line-height:1.3;margin:0;text-wrap:balance;position:relative}
+.meta{font-family:var(--f-mono);font-size:.75rem;color:var(--muted);position:relative}
+.controls{display:flex;flex-wrap:wrap;gap:10px}
+button{font-family:var(--f-ui);font-weight:600;font-size:1.05rem;letter-spacing:.06em;text-transform:uppercase;border-radius:4px;padding:10px 18px;cursor:pointer;border:2px solid var(--ink);background:transparent;color:var(--ink)}
+button.primary{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+button:active{transform:translateY(1px)}
+.loghead{font-size:1rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:4px 0 0;font-weight:600}
+ol#log{margin:0;padding-left:2.6em;display:grid;gap:8px;font-size:1.05rem;max-height:340px;overflow-y:auto}
+ol#log li::marker{font-family:var(--f-mono);font-size:.8rem;color:var(--muted)}
+.empty{color:var(--muted);margin:0}
+@media (prefers-reduced-motion:no-preference){#yell.pop{animation:pop .28s ease-out}@keyframes pop{from{transform:scale(.96) rotate(-1deg);opacity:.4}to{transform:none;opacity:1}}}
+
+/* write-up */
+ul.symbols{padding-left:1.2em}
+ul.symbols code,.rules code{font-family:var(--f-mono);font-size:.85em;color:var(--turf)}
+ol.picks{padding-left:1.4em;display:grid;gap:1.1em}
+ol.picks blockquote{margin:0;font-family:var(--f-yell);font-size:1.15rem;line-height:1.4}
+ol.picks .src{font-family:var(--f-mono);font-size:.75rem;color:var(--muted)}
+ol.picks p{margin:.3em 0 0}
+details{border-top:1px solid var(--line);padding-top:12px;margin-top:1em}
+summary{cursor:pointer;font-family:var(--f-ui);font-weight:600;letter-spacing:.06em;text-transform:uppercase}
+.rules{display:grid;gap:6px;margin-top:12px;font-size:.95rem}
+.rules div{display:grid;grid-template-columns:8.5em 1fr;gap:10px}
+.rules span{color:var(--muted);min-width:0}
+pre{overflow-x:auto;font-family:var(--f-mono);font-size:.75rem;background:var(--board);border:1px solid var(--line);padding:12px;border-radius:4px;max-height:320px}
+ul.attr{padding-left:1.2em}
+ul.attr li{margin-bottom:.5em}
+footer{margin-top:3em;font-family:var(--f-ui);font-size:.95rem;color:var(--muted);border-top:1px solid var(--line);padding-top:1em}
+@media (max-width:480px){.rules div{grid-template-columns:1fr;gap:0}dl.facts{grid-template-columns:1fr}dl.facts dd{margin-bottom:6px}}
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<div class="wrap">
+<header>
+  <p class="kicker">DH 101 · Generative Make</p>
+  <h1>Coach Speak <span>Bot</span></h1>
+  <dl class="facts">
+    <dt>Student</dt><dd>Jake Tempesta</dd>
+    <dt>Track</dt><dd>A, Text Generator (Tracery)</dd>
+    <dt>Tools</dt><dd>Tracery (Kate Compton), Claude (Anthropic) for code and drafting, GitHub Pages (hosting the live bot)</dd>
+  </dl>
+  <nav class="toc" aria-label="On this page">
+    <ul>
+      <li><a href="#bot">The Bot</a></li>
+      <li><a href="#generator">The Generator</a></li>
+      <li><a href="#curated">Curated Outputs</a></li>
+      <li><a href="#rejected">What I Rejected</a></li>
+      <li><a href="#process">Process</a></li>
+      <li><a href="#statement">Artist Statement</a></li>
+      <li><a href="#ai">AI Use</a></li>
+    </ul>
+  </nav>
+</header>
+
+<main id="main">
+<section class="bot" id="bot" aria-labelledby="bot-h">
+  <h2 id="bot-h" style="margin-bottom:0">Try It</h2>
+  <div class="board" aria-live="polite" aria-atomic="true">
+    <p id="yell">Stop the tape. Your get-off was a full business day late. You look like a lawn chair in a windstorm. Fix it.</p>
+    <div class="meta" id="meta">example output · press the whistle for a new one</div>
+  </div>
+  <div class="controls">
+    <button class="primary" id="one">Blow the whistle</button>
+    <button id="ten">Run 10 reps</button>
+    <button id="clear">Clear the film</button>
+  </div>
+  <div>
+    <h3 class="loghead">Film log</h3>
+    <ol id="log" aria-label="Generated yells, newest first"></ol>
+    <p class="empty" id="empty">No reps yet. Each yell you generate lands here.</p>
+  </div>
+  <noscript><p>The live bot needs JavaScript. Eight curated outputs are listed below in plain text.</p></noscript>
+</section>
+
+<section id="generator">
+  <h2>The Generator</h2>
+  <p>Coach Speak Bot generates the kind of thing a defensive line coach yells in the film room or at the sled. Hit “Blow the whistle” for one yell or “Run 10 reps” for ten. Every yell lands in a film log on the page.</p>
+  <p>The grammar has 13 symbols. Each one is a list Tracery picks from at random:</p>
+  <ul class="symbols">
+    <li><code>origin</code>: 8 sentence templates that set the shape of each yell</li>
+    <li><code>opener</code>: how the coach stops the tape (“Stop the tape,” “Whoa whoa whoa”)</li>
+    <li><code>name</code>: what he calls you (“Big Man,” “Hoss,” “Freshman”)</li>
+    <li><code>critique</code> / <code>critique2</code>: what you did wrong (“your get-off was a full business day late”)</li>
+    <li><code>comparison</code>: what you looked like (“a lawn chair in a windstorm”)</li>
+    <li><code>fix</code>: the real coaching point (“Get your hands inside,” “Low man wins”)</li>
+    <li><code>wisdom</code>: sideline philosophy (“Pad level is a lifestyle”)</li>
+    <li><code>skill</code>: what the comparison beat you at (“get-off,” “pursuit angles”)</li>
+    <li><code>punishment</code> + <code>count</code>: what it costs you (“fifteen up-downs”)</li>
+    <li><code>rating</code>: his grade for the rep (“soft as a dinner roll”)</li>
+    <li><code>closer</code>: how it ends (“Again!”, “Do it right or do it twice.”)</li>
+  </ul>
+  <p>The full grammar JSON is below and can be pasted straight into the Tracery editor at <a href="https://tracery.io">tracery.io</a>.</p>
+  <details>
+    <summary>How the bot works (full grammar)</summary>
+    <p>Every yell starts from one of 8 sentence templates in <code>origin</code>. Tracery swaps each <code>#symbol#</code> for a random entry from that list, so one template can produce thousands of different yells.</p>
+    <div class="rules" id="rules"></div>
+    <pre id="json" tabindex="0" aria-label="Grammar JSON"></pre>
+  </details>
+</section>
+
+<section id="curated">
+  <h2>Curated Outputs (8 of 120)</h2>
+  <p>My main test: could a real D-line coach have said the first half, and is the second half ridiculous enough to make the room laugh? The best ones sit right on that line.</p>
+  <ol class="picks">
+    <li><blockquote>“Freeze it right there. Your get-off was a full business day late. You look like a lawn chair in a windstorm. Fix it.”</blockquote><span class="src">batch 2, #2</span><p>The critique is a real coaching point with a corporate twist, and the lawn chair image fits a lineman who’s late and flailing. Every part lands.</p></li>
+    <li><blockquote>“Back it up. Your pad level is up in the clouds. You look like my grandmother after Thanksgiving dinner. That’s not us.”</blockquote><span class="src">batch 2, #21</span><p>A happy accident. The grammar didn’t know high pad level means standing up tall and slow, but the grandmother comparison matches it perfectly.</p></li>
+    <li><blockquote>“Whoa whoa whoa. You got off the ball like you were waiting for a text back. You look like a fridge somebody left on the curb. One more rep.”</blockquote><span class="src">batch 2, #46</span><p>Two jokes that both describe the same mistake: slow and stuck in place. Ending on “One more rep” ties back to my GIF make.</p></li>
+    <li><blockquote>“Hoss! I’ve seen a fridge somebody left on the curb with better get-off. Stay square.”</blockquote><span class="src">batch 2, #8</span><p>The most absurd one that still makes sense. A fridge has zero get-off, which is the point.</p></li>
+    <li><blockquote>“Ninety-Five, that rep was the worst thing I’ve seen since my fantasy draft. Win the first step. Again!”</blockquote><span class="src">batch 2, #33</span><p>This sounds like an actual coach. It’s the most believable output, which makes it funnier.</p></li>
+    <li><blockquote>“Listen up, Freshman. Your first step is your résumé. Rip through and flatten. Do it right or do it twice.”</blockquote><span class="src">batch 2, #54</span><p>Almost motivational. A freshman getting career advice about his first step is the best mix of football and real life.</p></li>
+    <li><blockquote>“Ninety-Five, that rep was not even on the tape I’d mail to my enemies. Win the first step. Do it right or do it twice.”</blockquote><span class="src">batch 2, #51</span><p>Good rhythm, and “tape” works both as game film and as something you’d mail. Feels like a film-room line.</p></li>
+    <li><blockquote>“Nope. Hustle is free and you’re acting like it costs money. AGAIN.”</blockquote><span class="src">batch 2, #4</span><p>The shortest output and the most real. Sometimes the generator’s best work is the plain one.</p></li>
+  </ol>
+</section>
+
+<section id="rejected">
+  <h2>What I Rejected</h2>
+  <p>I kept 8 of 120, so 112 got cut. Most fell into four groups:</p>
+  <ul>
+    <li><strong>Broken grammar (batch 1).</strong> The whole first batch had lowercase sentences after “!” or “.”, like “Bubba! you’re playing with your eyes closed.” That bug is why I made a second version of the grammar.</li>
+    <li><strong>Comparisons that don’t match the mistake.</strong> “I’ve seen a parked car with better eyes” doesn’t mean anything. “You took a false step. You look like a sumo wrestler at a ballet recital” is funny alone but has nothing to do with a false step.</li>
+    <li><strong>Clunky stacking.</strong> “That’s ten laps around the practice field after practice” says practice twice. “A hundred laps around the practice field” is so extreme it stops sounding like a coach.</li>
+    <li><strong>Repeats.</strong> Batch 2 produced the exact same grandmother yell twice (#21 and #47), and “Nope. Pad level is a lifestyle.” opened two outputs in a row in batch 1. By the second batch the same jokes kept cycling back, which is when I stopped.</li>
+  </ul>
+</section>
+
+<section id="process">
+  <h2>Process Documentation</h2>
+  <p>I picked Track A and built a text generator in Tracery, a tool that fills sentence templates with random words from lists you write. The idea came from the film room. I play defensive line at Denison, and D-line coaches have their own language: pad level, get-off, hands inside, and a comparison for every bad rep.</p>
+  <p>I built it with Claude. I picked the concept from three options, and Claude wrote the grammar as JSON and the code for the bot’s web page. The grammar has 13 symbols. The origin symbol holds 8 sentence templates, and each template pulls from lists like name, critique, comparison, fix, and closer. Some symbols nest inside others, so punishment calls count to make “fifteen up-downs.”</p>
+  <p>The parameters I controlled were the templates, what goes in each list, and how many options each list has. The key choice was keeping the critiques and fixes real, so every yell has a correct coaching point, and putting the absurd stuff in comparison and rating. That split is what makes the outputs work. The batches used a fixed random seed, so they can be regenerated exactly.</p>
+  <p>I generated 120 outputs total in two batches of 60. The first batch had a capitalization bug: when a critique started a sentence, it stayed lowercase. We fixed the templates with Tracery’s capitalize modifier and ran a second batch. I curated only from batch 2, but I kept batch 1 because the bug is part of the process.</p>
+  <p>Curation started with Claude sorting the outputs against my test: would a coach actually say the first half, and is the second half funny? Then I went through the picks myself and checked the football. Last, the bot went on a live page with a whistle button and a film log, so anyone can run their own reps.</p>
+</section>
+
+<section id="statement">
+  <h2>Artist Statement</h2>
+  <p>Coach Speak Bot can yell forever. But within 60 yells it repeated one word for word, and by the second batch I could see the same jokes cycling back. That’s the exhaustion of novelty. Infinite output doesn’t mean infinite surprise, and once the surprises stopped, generating more felt pointless.</p>
+  <p>So where is the human? In my process the creative decisions came at three points. First, the concept: coach speak, because it’s a language I hear every day at practice. Second, the split in the grammar: keep the coaching points real and let the comparisons get absurd. Third, the curation, deciding which outputs were actually funny and which were just random.</p>
+  <p>That last part needed someone who plays. The bot has no idea that high pad level means standing up tall and slow, so it can’t know the grandmother joke fits. It also can’t tell that “a sumo wrestler at a ballet recital” has nothing to do with a false step. I can. My criteria were simple: is the football right, would a coach say it, and does it get a laugh in the room.</p>
+  <p>If someone saw my 8 picks without explanation, I think they’d guess a person chose them, because they all sound like the same coach. “Pure” AI creativity would be the raw list of 120. “Pure” human creativity would be a real coach yelling at me after a bad rep. My work sits in the middle, closer to the coach.</p>
+</section>
+
+<section id="ai">
+  <h2>Attribution &amp; AI Use</h2>
+  <ul class="attr">
+    <li><strong>AI Tool Used:</strong> Claude (Anthropic)</li>
+    <li><strong>Prompt (summary):</strong> Asked the AI to help me create a chat bot.</li>
+    <li><strong>What the AI Generated:</strong> The Tracery grammar (all 13 symbols and their word lists), the script that ran both 60-output batches, the bot’s web page and this GitHub Pages version of it, a first sort of the curated picks, and drafts of every written section.</li>
+    <li><strong>What I Did:</strong> Chose the concept and the D-line theme, reviewed the picks against what real coaching sounds like, and reviewed the writing.</li>
+    <li><strong>Additional Tools:</strong> Tracery by Kate Compton (tracery-grammar library, Apache 2.0 license) for the generator. The page is hosted on GitHub Pages. Fonts: Permanent Marker, Saira Condensed, IBM Plex Mono, Source Serif 4 (Google Fonts, SIL Open Font License).</li>
+    <li><strong>Sources of Reused Material:</strong> None. All yells are generated from the grammar; no real coaches or players are quoted.</li>
+  </ul>
+</section>
+</main>
+
+<footer>Built by Jake Tempesta for DH 101 (Denison). Grammar engine: Tracery by Kate Compton (Apache 2.0). Code drafted with Claude.</footer>
+</div>
+
+<script>window.module={exports:{}};</script>
+<script src="https://cdn.jsdelivr.net/npm/tracery-grammar@2.7.4/tracery.js"></script>
+<script>
+const GRAMMAR = {"origin": ["#name#! #critique.capitalize#. #fix#. #closer#", "#opener#. #critique.capitalize#. You look like #comparison#. #closer#", "#name#, #critique#. #fix#, or we're doing #punishment#.", "#opener#. #wisdom#. #closer#", "#name#! I've seen #comparison# with better #skill#. #fix#.", "#opener#. #critique.capitalize#, and #critique2#. That's #punishment# after practice. #closer#", "Listen up, #name#. #wisdom#. #fix#. #closer#", "#name#, that rep was #rating#. #fix#. #closer#"], "opener": ["Hey", "Whoa whoa whoa", "Nope", "Run it back", "Stop the tape", "Everybody look at this", "Back it up", "Freeze it right there", "Oh my goodness"], "name": ["Big Man", "Ninety-Five", "Hoss", "Tank", "Bubba", "Big Fella", "Sixty-Eight", "Sweet Pea", "Young Man", "Mister Personality", "Freshman"], "critique": ["your pad level is up in the clouds", "you got off the ball like you were waiting for a text back", "your hands are outside the frame again", "you took a false step", "you're standing straight up", "your get-off was a full business day late", "you peeked into the backfield", "you two-gapped the wrong gap", "your swim move looked like the backstroke", "your feet are stuck in cement", "you're playing with your eyes closed", "you hesitated on the snap count"], "critique2": ["your eyes were in the stands", "your hips were on vacation", "your stance has a hole in it", "your hands showed up after the play", "you forgot the stunt call"], "comparison": ["a lawn chair in a windstorm", "a fridge somebody left on the curb", "a baby deer on ice", "a mattress falling down the stairs", "a parked car", "a mall cop on his day off", "a sumo wrestler at a ballet recital", "a grocery bag in the wind", "my grandmother after Thanksgiving dinner", "a vending machine that ate my dollar"], "fix": ["Get your hands inside", "Low man wins", "Shoot those hands", "Stay square", "Win the first step", "Bend at the knees, not the waist", "Read the guard, not the quarterback", "Rip through and flatten", "Get your butt down", "Eyes on the ball, go on the ball", "Drive your feet through contact"], "wisdom": ["The sled doesn't care how you feel", "Pad level is a lifestyle", "Football is a game of inches and you're giving away yards", "Nobody remembers the guy who almost made the tackle", "The film never lies, and right now it's yelling", "Low man wins, every rep, every day", "Your first step is your résumé", "The A-gap is not a suggestion", "Hustle is free and you're acting like it costs money"], "skill": ["pad level", "get-off", "hand placement", "footwork", "effort", "eyes", "leverage", "pursuit angles"], "punishment": ["#count# up-downs", "#count# gassers", "bear crawls to the goal line and back", "a sled session with your name on it", "#count# reps of bag drills", "#count# laps around the practice field"], "count": ["ten", "twelve", "fifteen", "twenty", "forty", "a hundred"], "rating": ["a C-minus on a good day", "soft as a dinner roll", "the worst thing I've seen since my fantasy draft", "almost good, and almost doesn't count", "not even on the tape I'd mail to my enemies", "a highlight, for the other team"], "closer": ["Again!", "Run it again.", "We go again.", "One more rep.", "Fix it.", "I need more!", "That's not us.", "Next rep!", "Do it right or do it twice.", "AGAIN."]};
+const NOTES={origin:"8 sentence templates",opener:"how the coach stops the tape",name:"what he calls you",critique:"what you did wrong",critique2:"the second thing you did wrong",comparison:"what you looked like",fix:"the coaching point",wisdom:"sideline philosophy",skill:"what the comparison beat you at",punishment:"what it costs you",count:"how many",rating:"his grade for the rep",closer:"how it ends"};
+let g=null;
+try{g=tracery.createGrammar(GRAMMAR);g.addModifiers(tracery.baseEngModifiers);}catch(e){}
+const $=id=>document.getElementById(id);
+const log=$("log"),yell=$("yell");let n=0;
+function make(){return g?g.flatten("#origin#"):"Grammar engine didn't load. Refresh the page."}
+function add(t){n++;const li=document.createElement("li");li.textContent=t;log.prepend(li);$("empty").hidden=true}
+function show(t){yell.textContent=t;yell.classList.remove("pop");void yell.offsetWidth;yell.classList.add("pop");$("meta").textContent="rep #"+n}
+$("one").onclick=()=>{const t=make();add(t);show(t)};
+$("ten").onclick=()=>{let t;for(let i=0;i<10;i++){t=make();add(t)}show(t)};
+$("clear").onclick=()=>{log.innerHTML="";n=0;$("empty").hidden=false;$("meta").textContent="film cleared"};
+$("rules").innerHTML=Object.keys(GRAMMAR).map(k=>`<div><code>#${k}#</code><span>${NOTES[k]||""} · ${GRAMMAR[k].length} options</span></div>`).join("");
+$("json").textContent=JSON.stringify(GRAMMAR,null,2);
+</script>
+</body>
+</html>
