@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Who Knows What About Me: A Network of My Digital Life</title>
+<style>
+  :root {
+    --paper: #F1F4F8;
+    --panel: #FFFFFF;
+    --ink: #1B2A41;
+    --muted: #4A5568;
+    --line: #C9D1DC;
+    --collects: #0B6E99;
+    --owned: #1B2A41;
+    --shares: #B3261E;
+    --alt: #5B6472;
+    --n-data: #FFFFFF;
+    --n-app: #1B2A41;
+    --n-owner: #9DB2CC;
+    --n-down: #F2C14E;
+    --focus: #0B57D0;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #10161F; --panel: #171F2B; --ink: #E7ECF3; --muted: #A9B4C4; --line: #2B3645;
+      --collects: #59B8E0; --owned: #E7ECF3; --shares: #FF8A80; --alt: #9AA6B6;
+      --n-data: #10161F; --n-app: #E7ECF3; --n-owner: #4B6485; --n-down: #C99A2E; --focus: #8AB4F8;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #10161F; --panel: #171F2B; --ink: #E7ECF3; --muted: #A9B4C4; --line: #2B3645;
+    --collects: #59B8E0; --owned: #E7ECF3; --shares: #FF8A80; --alt: #9AA6B6;
+    --n-data: #10161F; --n-app: #E7ECF3; --n-owner: #4B6485; --n-down: #C99A2E; --focus: #8AB4F8;
+  }
+  * { box-sizing: border-box; }
+  html { scroll-padding-top: 1rem; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 1rem/1.6 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  }
+  .skip { position: absolute; left: -999px; top: 0; background: var(--ink); color: var(--paper); padding: .6rem 1rem; z-index: 10; }
+  .skip:focus { left: 0; }
+  a { color: var(--collects); text-underline-offset: 3px; }
+  :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+  main { max-width: 88rem; margin: 0 auto; padding: 2rem 1.25rem 4rem; }
+  h1 { font: 700 clamp(2rem, 5vw, 3.2rem)/1.1 Georgia, "Iowan Old Style", serif; letter-spacing: -.01em; margin: 0 0 .75rem; max-width: 20ch; }
+  h2 { font: 700 1.5rem/1.2 Georgia, "Iowan Old Style", serif; margin: 2.5rem 0 .75rem; }
+  .lede { max-width: 62ch; color: var(--muted); font-size: 1.1rem; }
+  .howto { max-width: 70ch; }
+
+  .controls { display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; align-items: center; margin: 1.5rem 0 1rem; padding: .75rem 1rem; background: var(--panel); border: 1px solid var(--line); border-radius: 8px; }
+  .controls fieldset { border: 0; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: .5rem 1.25rem; }
+  .controls legend { font-weight: 600; padding: 0; margin-right: .5rem; float: left; }
+  .chk { display: inline-flex; align-items: center; gap: .5rem; cursor: pointer; }
+  .chk input { width: 1.1rem; height: 1.1rem; accent-color: var(--collects); }
+  .chk svg { width: 44px; height: 12px; flex: none; }
+  button { font: inherit; color: var(--ink); background: var(--panel); border: 2px solid var(--ink); border-radius: 6px; padding: .35rem .9rem; cursor: pointer; }
+  button:hover { background: var(--ink); color: var(--paper); }
+
+  .stage { display: grid; grid-template-columns: minmax(0, 1fr) 20rem; gap: 1.25rem; align-items: start; }
+  @media (max-width: 62rem) { .stage { grid-template-columns: 1fr; } }
+  .graph { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+  .graph svg { display: block; min-width: 900px; width: 100%; height: auto; }
+
+  .col-head { font: 600 15px Georgia, serif; fill: var(--muted); text-anchor: middle; }
+  .col-rule { stroke: var(--line); stroke-width: 1; stroke-dasharray: 2 6; }
+  .edge { fill: none; stroke-width: 2; transition: opacity .15s; }
+  .edge.collects { stroke: var(--collects); }
+  .edge.owned { stroke: var(--owned); stroke-dasharray: 10 4 2 4; }
+  .edge.shares { stroke: var(--shares); stroke-dasharray: 8 5; stroke-width: 2.5; }
+  .edge.alt { stroke: var(--alt); stroke-dasharray: 1 5; stroke-linecap: round; stroke-width: 3; }
+  .node { cursor: pointer; transition: opacity .15s; }
+  .node .shape { stroke: var(--ink); stroke-width: 2.5; }
+  .node.data .shape { fill: var(--n-data); }
+  .node.app .shape { fill: var(--n-app); }
+  .node.owner .shape { fill: var(--n-owner); }
+  .node.down .shape { fill: var(--n-down); }
+  .node text { font: 600 13px system-ui, sans-serif; fill: var(--ink); text-anchor: middle; paint-order: stroke; stroke: var(--panel); stroke-width: 4px; stroke-linejoin: round; pointer-events: none; }
+  .node:focus-visible { outline: none; }
+  .node:focus-visible .shape { stroke: var(--focus); stroke-width: 5; }
+  .node.selected .shape { stroke: var(--focus); stroke-width: 5; }
+  .dim { opacity: .12; }
+  .hidden-edge { display: none; }
+
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 8px; padding: 1rem 1.1rem; position: sticky; top: 1rem; }
+  .panel h2 { margin: 0 0 .25rem; font-size: 1.35rem; }
+  .panel h2:focus { outline: none; }
+  .panel .meta { color: var(--muted); margin: 0 0 .75rem; font-size: .95rem; }
+  .panel ul { list-style: none; padding: 0; margin: 0; }
+  .panel li { padding: .6rem 0; border-top: 1px solid var(--line); font-size: .95rem; }
+  .panel li .src { display: block; color: var(--muted); font-size: .85rem; }
+  .panel .empty { color: var(--muted); margin: 0; }
+
+  .legend { display: flex; flex-wrap: wrap; gap: .5rem 1.5rem; margin: 1rem 0 0; color: var(--muted); font-size: .95rem; }
+  .legend span { display: inline-flex; align-items: center; gap: .4rem; }
+  .legend svg { width: 20px; height: 20px; }
+  .legend .shape { stroke: var(--ink); stroke-width: 2; }
+
+  .tablewrap { overflow-x: auto; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); }
+  table { border-collapse: collapse; width: 100%; font-size: .95rem; min-width: 46rem; }
+  caption { text-align: left; padding: .75rem 1rem; color: var(--muted); }
+  th, td { text-align: left; padding: .55rem 1rem; border-top: 1px solid var(--line); vertical-align: top; }
+  th { font-weight: 600; }
+  .sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  @media (prefers-reduced-motion: reduce) { .edge, .node { transition: none; } }
+
+  .kicker { font-size:.85rem; letter-spacing:.14em; text-transform:uppercase; color:var(--muted); margin:0 0 .4rem; }
+  dl.facts { display:grid; grid-template-columns:auto 1fr; gap:.2rem 1rem; margin:0 0 1rem; font-size:.95rem; max-width:62ch; }
+  dl.facts dt { font-weight:600; color:var(--muted); }
+  dl.facts dd { margin:0; }
+  nav.toc ul { list-style:none; padding:0; margin:.5rem 0 0; display:flex; flex-wrap:wrap; gap:.4rem 1.2rem; }
+  .writeup { max-width:70ch; }
+  .writeup h3 { font: 700 1.1rem/1.3 Georgia, "Iowan Old Style", serif; margin:1.5rem 0 .4rem; }
+  .writeup ul { padding-left:1.2rem; }
+  @media (max-width:30rem){ dl.facts{grid-template-columns:1fr} dl.facts dd{margin-bottom:.4rem} }
+</style>
+</head>
+<body>
+<a class="skip" href="#connections">Skip to the text list of connections</a>
+<a class="skip" href="#analysis">Skip to the written analysis</a>
+<main id="main">
+  <p class="kicker">DH 101 · Week 8 Make: Networks of Knowledge &amp; Power</p>
+  <h1>Who Knows What About Me</h1>
+  <dl class="facts">
+    <dt>Student</dt><dd>Jake Tempesta</dd>
+    <dt>Date</dt><dd>Oct 23, 2026</dd>
+    <dt>Tools</dt><dd>Claude (Anthropic) for the page</dd>
+    <dt>Hosting</dt><dd>GitHub Pages</dd>
+  </dl>
+  <nav class="toc" aria-label="On this page"><ul>
+    <li><a href="#how">The Network</a></li>
+    <li><a href="#artifact">The Artifact</a></li>
+    <li><a href="#analysis">Network Analysis</a></li>
+    <li><a href="#statement">Artist Statement</a></li>
+    <li><a href="#ai">AI Use</a></li>
+  </ul></nav>
+  <noscript><p>The interactive graph needs JavaScript. The written sections below describe the network in full.</p></noscript>
+  <p class="lede">A network of my own digital life: the apps I use, the data they collect, the companies behind them, and everyone else who ends up seeing it.</p>
+
+  <section aria-labelledby="how">
+    <h2 id="how">How to read it</h2>
+    <p class="howto">Four columns run left to right: the kinds of data about me, the apps that collect them, the companies that own those apps, and the people and businesses downstream. Four kinds of line show how things connect, and each has its own colour and dash pattern. Shapes also differ by column. Node size is the number of connections. Click or press Tab then Enter on any node to see its connections, the evidence, and the document to check. A full text version sits below the graph.</p>
+  </section>
+
+  <div class="controls">
+    <fieldset>
+      <legend>Show lines</legend>
+      <label class="chk"><input type="checkbox" data-type="collects" checked>
+        <svg viewBox="0 0 44 12" aria-hidden="true"><line x1="2" y1="6" x2="42" y2="6" stroke="var(--collects)" stroke-width="3"/></svg>Collects</label>
+      <label class="chk"><input type="checkbox" data-type="owned" checked>
+        <svg viewBox="0 0 44 12" aria-hidden="true"><line x1="2" y1="6" x2="42" y2="6" stroke="var(--owned)" stroke-width="3" stroke-dasharray="10 4 2 4"/></svg>Owned by</label>
+      <label class="chk"><input type="checkbox" data-type="shares" checked>
+        <svg viewBox="0 0 44 12" aria-hidden="true"><line x1="2" y1="6" x2="42" y2="6" stroke="var(--shares)" stroke-width="3" stroke-dasharray="8 5"/></svg>Shares data with</label>
+      <label class="chk"><input type="checkbox" data-type="alt" checked>
+        <svg viewBox="0 0 44 12" aria-hidden="true"><line x1="2" y1="6" x2="42" y2="6" stroke="var(--alt)" stroke-width="3.5" stroke-dasharray="1 5" stroke-linecap="round"/></svg>Alternative to</label>
+    </fieldset>
+    <button type="button" id="reset">Clear selection</button>
+  </div>
+
+  <div class="stage">
+    <div class="graph" id="graph"></div>
+    <aside class="panel" aria-live="polite" id="panel">
+      <h2 id="panel-title" tabindex="-1">Pick a node</h2>
+      <p class="empty">Select any node to see what it connects to and why.</p>
+    </aside>
+  </div>
+
+  <p class="legend" aria-label="Node shapes">
+    <span><svg viewBox="0 0 20 20" aria-hidden="true"><polygon class="shape" points="10,2 18,10 10,18 2,10" fill="var(--n-data)"/></svg>Data type</span>
+    <span><svg viewBox="0 0 20 20" aria-hidden="true"><circle class="shape" cx="10" cy="10" r="7" fill="var(--n-app)"/></svg>App or service</span>
+    <span><svg viewBox="0 0 20 20" aria-hidden="true"><rect class="shape" x="3" y="3" width="14" height="14" fill="var(--n-owner)"/></svg>Owner</span>
+    <span><svg viewBox="0 0 20 20" aria-hidden="true"><polygon class="shape" points="10,2 17,6 17,14 10,18 3,14 3,6" fill="var(--n-down)"/></svg>Who else sees it</span>
+  </p>
+
+  <section aria-labelledby="connections">
+    <h2 id="connections">All connections as text</h2>
+    <div class="tablewrap" tabindex="0" role="region" aria-labelledby="tcap">
+      <table>
+        <caption id="tcap"></caption>
+        <thead><tr><th scope="col">From</th><th scope="col">Relationship</th><th scope="col">To</th><th scope="col">Evidence</th><th scope="col">Document to cite</th></tr></thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="writeup" aria-labelledby="artifact">
+    <h2 id="artifact">The Artifact</h2>
+    <p>I mapped my own digital life (Option C) as a network of 27 nodes and 33 connections. It shows which apps collect which kinds of data about me, who owns those apps, and who else ends up seeing the data. Four line styles mark four relationships (collects, owned by, shares data with, alternative to), node size is the number of connections, and node shape marks the column.</p>
+  </section>
+
+  <section class="writeup" aria-labelledby="analysis">
+    <h2 id="analysis">Network Analysis</h2>
+    <h3>What is the most central node? Why?</h3>
+    <p>It depends on the measure. Instagram has the most connections (6): it collects three kinds of data about me, belongs to Meta, and is an alternative to Snapchat and Pinterest. But Contacts &amp; social graph has the highest betweenness (0.24), meaning about a quarter of the shortest paths between other nodes run through it. Five apps (Instagram, Snapchat, Gmail, LinkedIn, and Venmo) all collect it, so it ties my social, work, email, and payment lives together. Instagram is the busiest app, but my contacts are the real bridge.</p>
+    <h3>What clusters emerged?</h3>
+    <p>The graph splits into three pieces. The main piece (20 nodes) holds a Google group (Gmail, YouTube, Maps, Alphabet) and a social-and-ads group (Instagram, Snapchat, Pinterest, Meta, and advertisers). Pinterest also links that ads group to Amazon Associates. The other two pieces are islands: Hudl with my game film and the coaches who see it, and Claude with my prompts and Anthropic. Neither touches the main graph.</p>
+    <h3>What was surprising?</h3>
+    <p>Three things. Contacts outrank Instagram on betweenness. Advertisers &amp; data brokers receives four lines, yet it is the one node I never choose or use. And the two islands show that the data I create for football and for AI work stays separate from everything else I do online, at least in what I could find.</p>
+    <h3>What is MISSING?</h3>
+    <p>Nine of the 27 nodes have only one connection. They are endpoints because my edge list stops there, not because nothing more happens. Advertisers &amp; data brokers is one box standing in for many companies I cannot name. I also left out my phone&rsquo;s operating system, my carrier, my bank, and school systems. And a line shows that a connection exists, not how much data moves along it.</p>
+  </section>
+
+  <section class="writeup" aria-labelledby="statement">
+    <h2 id="statement">Artist Statement</h2>
+    <h3>What does my network reveal about power?</h3>
+    <p>Power on this graph sits where lines converge, not where they start. Four lines end at Advertisers &amp; data brokers, and Alphabet owns three of my eleven apps, so Gmail, YouTube, and Maps all feed one company. I chose which apps to map, but not who sits behind them. The graph shows that my choices stop at the app column, and everything to the right of it happens without me.</p>
+    <h3>Who is visible? Who is invisible?</h3>
+    <p>Visible: the apps I tap every day and the big names that own them, because they have logos and privacy policies. Invisible: the advertisers and data brokers, who appear as one yellow box because I did not name a single one. The format forced that. A node needs a name, and the people who buy information about me do not give one. I am invisible too. I am not a node, only the data on the left.</p>
+    <h3>How would a different structure tell a different story?</h3>
+    <p>Same 33 rows, different drawing. With owners in the center, Alphabet and Meta would look like the hubs of my life and my apps would look like their doors. With me in the center, it would look like a personal toolkit that I control. Like football film, the same play looks different from another camera angle. My columns tell a story of a trail: data leaves me on the left and ends up with others on the right.</p>
+  </section>
+
+  <section class="writeup" aria-labelledby="ai">
+    <h2 id="ai">Attribution &amp; AI Use</h2>
+    <ul>
+      <li><strong>AI Tool Used:</strong> Claude (Anthropic) helped with research once that was done. I plugged the points into Claude and had it create the actual (Make). It prompted me by asking relevant questions regarding the definitions and how they are connected so that it could better create the (Make).</li>
+      <li><strong>Hosting:</strong> Claude also built this GitHub Pages version of the page and published it to my site; I reviewed it.</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+const DATA = {"nodes": [{"id": "contacts", "label": "Contacts & social graph", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 191, "degree": 5, "betweenness": 0.244}, {"id": "interests", "label": "Interests & searches", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 289, "degree": 3, "betweenness": 0.03}, {"id": "location", "label": "Location", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 386, "degree": 3, "betweenness": 0.029}, {"id": "purchases", "label": "Purchases & payments", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 484, "degree": 2, "betweenness": 0.03}, {"id": "prompts", "label": "Prompts & drafts", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 581, "degree": 1, "betweenness": 0.0}, {"id": "film", "label": "Game film of me", "tier": "data", "tierLabel": "Data type", "x": 160, "y": 679, "degree": 1, "betweenness": 0.0}, {"id": "instagram", "label": "Instagram", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 110, "degree": 6, "betweenness": 0.147}, {"id": "snapchat", "label": "Snapchat", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 175, "degree": 4, "betweenness": 0.041}, {"id": "linkedin", "label": "LinkedIn", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 240, "degree": 3, "betweenness": 0.108}, {"id": "gmail", "label": "Gmail", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 305, "degree": 2, "betweenness": 0.037}, {"id": "youtube", "label": "YouTube", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 370, "degree": 2, "betweenness": 0.007}, {"id": "maps", "label": "Google Maps", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 435, "degree": 2, "betweenness": 0.006}, {"id": "venmo", "label": "Venmo", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 500, "degree": 3, "betweenness": 0.096}, {"id": "associates", "label": "Amazon Associates", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 565, "degree": 3, "betweenness": 0.078}, {"id": "pinterest", "label": "Pinterest", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 630, "degree": 4, "betweenness": 0.093}, {"id": "hudl", "label": "Hudl", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 695, "degree": 3, "betweenness": 0.009}, {"id": "claude", "label": "Claude", "tier": "app", "tierLabel": "App or service", "x": 460, "y": 760, "degree": 2, "betweenness": 0.003}, {"id": "meta", "label": "Meta", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 191, "degree": 2, "betweenness": 0.002}, {"id": "microsoft", "label": "Microsoft", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 289, "degree": 1, "betweenness": 0.0}, {"id": "alphabet", "label": "Alphabet", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 386, "degree": 4, "betweenness": 0.055}, {"id": "paypal", "label": "PayPal", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 484, "degree": 1, "betweenness": 0.0}, {"id": "amazon", "label": "Amazon", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 581, "degree": 1, "betweenness": 0.0}, {"id": "anthropic", "label": "Anthropic", "tier": "owner", "tierLabel": "Owner", "x": 760, "y": 679, "degree": 1, "betweenness": 0.0}, {"id": "advertisers", "label": "Advertisers & data brokers", "tier": "down", "tierLabel": "Who else sees it", "x": 1010, "y": 224, "degree": 4, "betweenness": 0.045}, {"id": "recruiters", "label": "Recruiters & employers", "tier": "down", "tierLabel": "Who else sees it", "x": 1010, "y": 365, "degree": 1, "betweenness": 0.0}, {"id": "staff", "label": "Denison football staff", "tier": "down", "tierLabel": "Who else sees it", "x": 1010, "y": 505, "degree": 1, "betweenness": 0.0}, {"id": "opponents", "label": "Opposing coaches", "tier": "down", "tierLabel": "Who else sees it", "x": 1010, "y": 646, "degree": 1, "betweenness": 0.0}], "edges": [{"source": "instagram", "target": "contacts", "type": "collects", "note": "Records who I follow, message and tag; can sync my phone contacts.", "src": "Meta Privacy Policy"}, {"source": "instagram", "target": "interests", "type": "collects", "note": "Tracks the posts, reels and accounts I engage with.", "src": "Meta Privacy Policy"}, {"source": "instagram", "target": "location", "type": "collects", "note": "Uses device location if allowed and infers it from my IP address.", "src": "Meta Privacy Policy"}, {"source": "snapchat", "target": "location", "type": "collects", "note": "Snap Map and location features use my device location.", "src": "Snap Privacy Policy"}, {"source": "snapchat", "target": "contacts", "type": "collects", "note": "Friends list plus address-book sync.", "src": "Snap Privacy Policy"}, {"source": "gmail", "target": "contacts", "type": "collects", "note": "Stores everyone I correspond with.", "src": "Google Privacy Policy"}, {"source": "youtube", "target": "interests", "type": "collects", "note": "Watch and search history drive recommendations.", "src": "Google Privacy Policy"}, {"source": "maps", "target": "location", "type": "collects", "note": "Logs places I search and, if turned on, Location History.", "src": "Google Privacy Policy"}, {"source": "linkedin", "target": "contacts", "type": "collects", "note": "Connections, messages and imported contacts.", "src": "LinkedIn Privacy Policy"}, {"source": "venmo", "target": "purchases", "type": "collects", "note": "Records each payment, amount and note.", "src": "Venmo Privacy Statement"}, {"source": "venmo", "target": "contacts", "type": "collects", "note": "Friends list and, if allowed, phone contacts.", "src": "Venmo Privacy Statement"}, {"source": "pinterest", "target": "interests", "type": "collects", "note": "Pins, boards and searches show my tastes.", "src": "Pinterest Privacy Policy"}, {"source": "associates", "target": "purchases", "type": "collects", "note": "Reports clicks and orders that come from my affiliate links.", "src": "Amazon Associates Program Policies"}, {"source": "hudl", "target": "film", "type": "collects", "note": "Hosts and tags video of my games and practices.", "src": "Hudl Privacy Policy"}, {"source": "claude", "target": "prompts", "type": "collects", "note": "Stores my conversations and drafts.", "src": "Anthropic Privacy Policy"}, {"source": "instagram", "target": "meta", "type": "owned", "note": "Meta owns Instagram.", "src": "Meta company info"}, {"source": "gmail", "target": "alphabet", "type": "owned", "note": "Alphabet owns Google, including Gmail.", "src": "Alphabet annual report"}, {"source": "youtube", "target": "alphabet", "type": "owned", "note": "Alphabet owns YouTube.", "src": "Alphabet annual report"}, {"source": "maps", "target": "alphabet", "type": "owned", "note": "Alphabet owns Google Maps.", "src": "Alphabet annual report"}, {"source": "linkedin", "target": "microsoft", "type": "owned", "note": "Microsoft bought LinkedIn in 2016.", "src": "Microsoft press release (2016)"}, {"source": "venmo", "target": "paypal", "type": "owned", "note": "PayPal owns Venmo.", "src": "PayPal company info"}, {"source": "associates", "target": "amazon", "type": "owned", "note": "Amazon runs the Associates program.", "src": "Amazon Associates Program Policies"}, {"source": "claude", "target": "anthropic", "type": "owned", "note": "Anthropic makes Claude.", "src": "Anthropic company info"}, {"source": "meta", "target": "advertisers", "type": "shares", "note": "Uses activity to target ads and report results to advertisers.", "src": "Meta Privacy Policy"}, {"source": "alphabet", "target": "advertisers", "type": "shares", "note": "Uses activity to target ads across its products.", "src": "Google Privacy Policy"}, {"source": "snapchat", "target": "advertisers", "type": "shares", "note": "Uses activity and location for ad targeting.", "src": "Snap Privacy Policy"}, {"source": "pinterest", "target": "advertisers", "type": "shares", "note": "Uses pins and searches for ad targeting.", "src": "Pinterest Privacy Policy"}, {"source": "pinterest", "target": "associates", "type": "shares", "note": "Clicks on my pins send readers to Amazon, and Amazon tracks them.", "src": "Amazon Associates Program Policies"}, {"source": "linkedin", "target": "recruiters", "type": "shares", "note": "Profile and activity are visible to recruiters.", "src": "LinkedIn Privacy Policy"}, {"source": "hudl", "target": "staff", "type": "shares", "note": "Coaches on my team account can view and tag my film.", "src": "Hudl Privacy Policy"}, {"source": "hudl", "target": "opponents", "type": "shares", "note": "Teams can exchange film before games.", "src": "Hudl help center"}, {"source": "snapchat", "target": "instagram", "type": "alt", "note": "Both are social and messaging apps for my friends.", "src": "My own judgment"}, {"source": "pinterest", "target": "instagram", "type": "alt", "note": "Both are visual discovery feeds.", "src": "My own judgment"}]};
+(function () {
+  const NS = "http://www.w3.org/2000/svg";
+  const byId = Object.fromEntries(DATA.nodes.map(n => [n.id, n]));
+  const REL = {
+    collects: ["collects", "Collects"],
+    owned: ["is owned by", "Owned by"],
+    shares: ["shares data with", "Shares data with"],
+    alt: ["is an alternative to", "Alternative to"]
+  };
+  const COLS = [["data", 160, "What they know"], ["app", 460, "Where it starts"], ["owner", 760, "Who owns it"], ["down", 1010, "Who else sees it"]];
+  const W = 1120, H = 820;
+  const radius = n => 8 + n.degree * 1.5;
+
+  const el = (name, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, name);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "group", "aria-labelledby": "svg-t svg-d" });
+  const t = el("title", { id: "svg-t" }, svg); t.textContent = "Network of my digital life";
+  const d = el("desc", { id: "svg-d" }, svg);
+  d.textContent = `${DATA.nodes.length} nodes and ${DATA.edges.length} connections in four columns: data types, apps, owners, and who else sees the data. The same information is in the table below the graph.`;
+  document.getElementById("graph").appendChild(svg);
+
+  COLS.forEach(([tier, x, label]) => {
+    el("line", { class: "col-rule", x1: x, x2: x, y1: 70, y2: H - 30 }, svg);
+    el("text", { class: "col-head", x, y: 48 }, svg).textContent = label;
+  });
+
+  const edgeLayer = el("g", {}, svg);
+  const nodeLayer = el("g", {}, svg);
+
+  function pathFor(a, b) {
+    if (a.x === b.x) {
+      const bulge = -Math.min(110, 50 + Math.abs(a.y - b.y) * 0.18);
+      return `M${a.x},${a.y} C${a.x + bulge},${a.y} ${a.x + bulge},${b.y} ${b.x},${b.y}`;
+    }
+    const mx = (a.x + b.x) / 2;
+    return `M${a.x},${a.y} C${mx},${a.y} ${mx},${b.y} ${b.x},${b.y}`;
+  }
+
+  const edgeEls = DATA.edges.map(e => {
+    const a = byId[e.source], b = byId[e.target];
+    const p = el("path", { class: `edge ${e.type}`, d: pathFor(a, b) }, edgeLayer);
+    return { e, p };
+  });
+
+  function shapeFor(n, g) {
+    const r = radius(n), x = n.x, y = n.y;
+    if (n.tier === "data") return el("polygon", { class: "shape", points: `${x},${y - r * 1.2} ${x + r * 1.2},${y} ${x},${y + r * 1.2} ${x - r * 1.2},${y}` }, g);
+    if (n.tier === "app") return el("circle", { class: "shape", cx: x, cy: y, r }, g);
+    if (n.tier === "owner") return el("rect", { class: "shape", x: x - r, y: y - r, width: r * 2, height: r * 2 }, g);
+    const h = r * 1.1, w = r * 1.15;
+    return el("polygon", { class: "shape", points: `${x},${y - h} ${x + w},${y - h / 2} ${x + w},${y + h / 2} ${x},${y + h} ${x - w},${y + h / 2} ${x - w},${y - h / 2}` }, g);
+  }
+
+  const nodeEls = DATA.nodes.map(n => {
+    const g = el("g", {
+      class: `node ${n.tier}`, tabindex: 0, role: "button",
+      "aria-label": `${n.label}, ${n.tierLabel.toLowerCase()}, ${n.degree} connections`
+    }, nodeLayer);
+    shapeFor(n, g);
+    el("text", { x: n.x, y: n.y + radius(n) * 1.2 + 14 }, g).textContent = n.label;
+    g.addEventListener("click", () => select(n.id, false));
+    g.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" || ev.key === " ") { ev.preventDefault(); select(n.id, true); }
+    });
+    return { n, g };
+  });
+
+  const panel = document.getElementById("panel");
+  let current = null;
+
+  function sentence(e) {
+    return `${byId[e.source].label} ${REL[e.type][0]} ${byId[e.target].label}`;
+  }
+
+  function select(id, moveFocus) {
+    current = id;
+    const linked = new Set([id]);
+    const mine = DATA.edges.filter(e => e.source === id || e.target === id);
+    mine.forEach(e => { linked.add(e.source); linked.add(e.target); });
+    nodeEls.forEach(({ n, g }) => {
+      g.classList.toggle("dim", !linked.has(n.id));
+      g.classList.toggle("selected", n.id === id);
+    });
+    edgeEls.forEach(({ e, p }) => p.classList.toggle("dim", !(e.source === id || e.target === id)));
+
+    const n = byId[id];
+    panel.replaceChildren();
+    const h = document.createElement("h2"); h.id = "panel-title"; h.tabIndex = -1; h.textContent = n.label;
+    const m = document.createElement("p"); m.className = "meta";
+    m.textContent = `${n.tierLabel}. ${n.degree} connections. Betweenness ${n.betweenness.toFixed(2)}.`;
+    const ul = document.createElement("ul");
+    mine.forEach(e => {
+      const li = document.createElement("li");
+      li.textContent = `${sentence(e)}. ${e.note}`;
+      const s = document.createElement("span"); s.className = "src"; s.textContent = `Check: ${e.src}`;
+      li.appendChild(s); ul.appendChild(li);
+    });
+    panel.append(h, m, ul);
+    if (moveFocus) h.focus();
+  }
+
+  function clear() {
+    current = null;
+    nodeEls.forEach(({ g }) => g.classList.remove("dim", "selected"));
+    edgeEls.forEach(({ p }) => p.classList.remove("dim"));
+    panel.replaceChildren();
+    const h = document.createElement("h2"); h.id = "panel-title"; h.tabIndex = -1; h.textContent = "Pick a node";
+    const p = document.createElement("p"); p.className = "empty"; p.textContent = "Select any node to see what it connects to and why.";
+    panel.append(h, p);
+  }
+  document.getElementById("reset").addEventListener("click", clear);
+  document.addEventListener("keydown", ev => { if (ev.key === "Escape" && current) clear(); });
+
+  // edge-type filters
+  const shown = { collects: true, owned: true, shares: true, alt: true };
+  document.querySelectorAll(".controls input[data-type]").forEach(cb => {
+    cb.addEventListener("change", () => {
+      shown[cb.dataset.type] = cb.checked;
+      edgeEls.forEach(({ e, p }) => p.classList.toggle("hidden-edge", !shown[e.type]));
+    });
+  });
+
+  // text table
+  document.getElementById("tcap").textContent = `All ${DATA.edges.length} connections in the graph, grouped by relationship.`;
+  const rows = document.getElementById("rows");
+  ["collects", "owned", "shares", "alt"].forEach(type => {
+    DATA.edges.filter(e => e.type === type).forEach(e => {
+      const tr = document.createElement("tr");
+      [byId[e.source].label, REL[type][1], byId[e.target].label, e.note, e.src].forEach((v, i) => {
+        const c = document.createElement(i === 0 ? "th" : "td");
+        if (i === 0) c.scope = "row";
+        c.textContent = v; tr.appendChild(c);
+      });
+      rows.appendChild(tr);
+    });
+  });
+})();
+</script>
+</body>
+</html>
