@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Film Don't Lie</title>
+<style>
+  :root { --paper:#F1F4F8; --panel:#FFFFFF; --ink:#1B2A41; --muted:#4A5568; --line:#C9D1DC; --link:#0B6E99; --focus:#0B57D0; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --paper:#10161F; --panel:#171F2B; --ink:#E7ECF3; --muted:#A9B4C4; --line:#2B3645; --link:#59B8E0; --focus:#8AB4F8; }
+  }
+  :root[data-theme="dark"] { --paper:#10161F; --panel:#171F2B; --ink:#E7ECF3; --muted:#A9B4C4; --line:#2B3645; --link:#59B8E0; --focus:#8AB4F8; }
+  * { box-sizing: border-box; }
+  body { margin:0; background:var(--paper); color:var(--ink); font:1rem/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif; }
+  .skip { position:absolute; left:-999px; top:0; background:var(--ink); color:var(--paper); padding:.6rem 1rem; z-index:10; }
+  .skip:focus { left:0; }
+  a { color:var(--link); text-underline-offset:3px; }
+  :focus-visible { outline:3px solid var(--focus); outline-offset:3px; }
+  main { max-width:60rem; margin:0 auto; padding:2rem 16px 4rem; }
+  h1 { font:700 clamp(2rem,5vw,3.2rem)/1.1 Georgia,"Iowan Old Style",serif; margin:0 0 1rem; }
+  h2 { font:700 1.5rem/1.2 Georgia,"Iowan Old Style",serif; margin:2.5rem 0 .75rem; }
+  h3 { font:700 1.1rem/1.3 system-ui,sans-serif; margin:1.5rem 0 .5rem; }
+  nav ul { list-style:none; padding:0; margin:0 0 1.5rem; display:flex; flex-wrap:wrap; gap:.5rem 1.25rem; }
+  .game { background:var(--panel); border:1px solid var(--line); border-radius:8px; overflow:hidden; }
+  .game iframe { display:block; width:100%; height:80vh; min-height:560px; border:0; }
+  section p, section ul { max-width:68ch; }
+  section { scroll-margin-top:1rem; }
+</style>
+</head>
+<body>
+<a class="skip" href="#game">Skip to game</a>
+<main>
+  <h1>Film Don't Lie</h1>
+  <nav aria-label="On this page">
+    <ul>
+      <li><a href="#design-statement">Design Statement</a></li>
+      <li><a href="#how-i-use-ai">How I Use AI</a></li>
+      <li><a href="#artist-statement">Artist Statement</a></li>
+    </ul>
+  </nav>
+
+  <div class="game" id="game">
+    <iframe src="film-dont-lie-game.html" title="Film Don't Lie, interactive Twine game"></iframe>
+  </div>
+  <noscript><p>This game needs JavaScript to play.</p></noscript>
+
+  <section id="design-statement" aria-labelledby="h-design">
+    <h2 id="h-design">Design Statement</h2>
+    <p>Film Don't Lie is a short Twine game about what happens when an AI starts grading football film. You play #94, a defensive lineman. One Monday, Coach rolls out TAPE, an AI that grades every snap and helps set the depth chart. Over one week of practice, you decide how much to trust it.</p>
+    <p>The game is about how people hand their judgment over to AI without ever making one big decision to do it. Nobody in the story says "let the computer run the team." It happens one small moment at a time.</p>
+    <p>The player makes four choices. TAPE gives your best rep a bad grade because it tagged the play wrong. Then it tells you to change your stance to match its model. A freshman asks how to game the camera. Finally, Coach asks whether TAPE's depth chart ranking is right. Each time, you can go along with the AI or trust your own read on football.</p>
+    <p>The choice I think matters most is the last one at the depth chart. It's the first time all week anyone asks what you think. If you've been going along with TAPE the whole time, saying "the numbers are the numbers" feels natural. That's the point.</p>
+    <p>The main mechanic is a hidden trust meter. Every time you defer to TAPE, a variable goes up by one. You never see it during the game. At the end, the game shows your trust rating out of four and a status like "Fully compliant." The AI was grading you the whole time, not just your film.</p>
+    <p>This is the game's procedural rhetoric. The rules make the argument: no single choice feels like a big deal, but they add up. There are three endings based on your score. The "Optimized" ending gets you the start, but you don't recognize yourself on tape. The "Off Script" ending costs you the start but gets Coach to add a human notes column. Playing it your way costs something, and the game makes you feel that trade-off.</p>
+  </section>
+
+  <section id="how-i-use-ai" aria-labelledby="h-ai">
+    <h2 id="h-ai">How I Use AI</h2>
+    <h3>Tools</h3>
+    <ul>
+      <li>Claude: brainstorming, story drafting, Twine code, visuals, publishing help</li>
+      <li>Twine 2 (Harlowe 3.3.9): the game engine and editor at twinery.org</li>
+    </ul>
+    <h3>What I asked AI to do</h3>
+    <p>I use AI as a teammate, not a substitute. Collaborating on ideas and things that I didn't know how to do, like adding images to the game, it helped me with. I also talked to the AI, giving it the direction I wanted but letting it do some of the filler work, like adding some words and sentences that added color to the game but did not change the content</p>
+  </section>
+
+  <section id="artist-statement" aria-labelledby="h-artist">
+    <h2 id="h-artist">Artist Statement</h2>
+    <p>The biggest thing I learned about games is that the rules can make the argument for you. In Film Don't Lie, no character says "don't hand your judgment to AI." The hidden trust meter says it instead. Every time you go along with TAPE, it quietly counts. At the end it tells you how compliant you were. That's procedural rhetoric: the player feels the point instead of just reading it.</p>
+    <p>As a static story, this would just be a lineman slowly trusting a machine, and you could judge him from the outside. In the game, you make those choices yourself, so the ending lands on you. The "Fully compliant" screen hits differently when you're the one who clicked every option.</p>
+    <p>AI did a lot of this project. Claude drafted the passages, wrote the Twine code, designed the visuals, and helped publish it. My part was the concept, the decisions, and testing. I picked the football film room idea because it's my real life on the D-line. I chose the trust meter mechanic and approved the structure. It's a little ironic, because the game is about trusting AI too much, and I built it with AI. Making it made me think about where my own line is.</p>
+    <p>The hardest part of interactive narrative was making choices that actually matter, not fake choices. Every path had to connect, and every choice had to feed the ending.</p>
+  </section>
+</main>
+</body>
+</html>
