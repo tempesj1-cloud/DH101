@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>DH 101 — Week 12 Make: AI &amp; Ecology</title><style>
+:root{--bg:#f7f4ee;--ink:#1b1b1b;--mut:#4a4a4a;--red:#b3202a;--line:#ddd7cb}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:18px/1.6 Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+.skip{position:absolute;left:-999px;top:0;background:var(--ink);color:#fff;padding:10px 14px;z-index:10}.skip:focus{left:8px;top:8px}
+main,header,nav{max-width:860px;margin:0 auto;padding:0 20px}
+header{padding-top:40px}.kicker{color:var(--red);font-weight:700;letter-spacing:.06em;font-size:14px;text-transform:uppercase;margin:0}
+h1{font-size:clamp(34px,6vw,54px);line-height:1.1;margin:8px 0 16px}h2{font-size:28px;margin:0 0 12px}
+dl{margin:0 0 8px;color:var(--mut)}dt{display:inline;font-weight:700;color:var(--ink)}dd{display:inline;margin:0 0 0 4px}dl div{margin:2px 0}
+nav ul{list-style:none;display:flex;flex-wrap:wrap;gap:8px 20px;padding:14px 0;margin:16px 0 0;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+a{color:var(--red);text-underline-offset:3px;overflow-wrap:anywhere}a:focus-visible{outline:3px solid var(--ink);outline-offset:3px}
+figure{margin:28px 0}figure img{width:100%;height:auto;display:block;border:1px solid var(--line)}
+section{padding:28px 0;border-top:1px solid var(--line)}li{margin:8px 0}
+
+.viz{margin:28px 0;padding:24px;background:#fff;border:1px solid var(--line);border-radius:12px}
+.viz h2{margin-top:0}.viz h3{font-size:20px;margin:24px 0 8px}
+.seg{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;padding:0;border:0}.seg legend{font-weight:700;margin-bottom:6px;padding:0}
+.seg label{position:relative}.seg input{position:absolute;opacity:0;inset:0;width:100%;height:100%;cursor:pointer;margin:0}
+.seg span{display:block;padding:10px 16px;border:2px solid var(--ink);border-radius:999px;font-weight:600;font-size:16px}
+.seg input:checked+span{background:var(--ink);color:#fff}.seg input:focus-visible+span{outline:3px solid var(--red);outline-offset:3px}
+.big{font-size:clamp(56px,14vw,104px);font-weight:800;color:var(--red);line-height:1;margin:8px 0}
+.cap{color:var(--mut);margin:4px 0 16px}svg.dots{width:100%;height:auto;display:block}
+.row{margin:14px 0}.row label{font-weight:700;display:block}input[type=range]{width:100%;accent-color:#b3202a;height:32px}
+.out{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+.card{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:var(--bg)}.card b{display:block;font-size:28px;color:var(--red);line-height:1.2}
+.bar{height:18px;background:#e7e2d8;border-radius:9px;overflow:hidden;margin-top:6px}.bar i{display:block;height:100%;background:var(--red);width:0}
+.small{font-size:15px;color:var(--mut)}
+
+.viz{margin-top:8px}</style></head><body>
+<a class="skip" href="#main">Skip to content</a>
+<header><p class="kicker">DH 101</p><h1>DH 101 — Week 12 Make: AI &amp; Ecology</h1><dl><div><dt>Student Name:</dt><dd>Jake Tempesta</dd></div><div><dt>Title:</dt><dd>552 Tons of CO2 (Track A: Carbon Footprint Visualization)</dd></div><div><dt>Tools Used:</dt><dd>Claude (Anthropic) for research, code, and drafting; Python with the Pillow library (infographic); Inter font (SIL Open Font License)</dd></div></dl></header>
+<nav aria-label="Page sections"><ul><li><a href="#artifact">The Artifact</a></li><li><a href="#research">Research Documentation</a></li><li><a href="#statement">Artist Statement</a></li><li><a href="#webpage">Sustainability &amp; Ethics Web Page</a></li><li><a href="#attribution">Attribution &amp; AI Use</a></li></ul></nav>
+<main id="main"><svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false"><defs>
+<symbol id="i-plane" viewBox="0 0 24 24"><path d="M21 16v-2l-8-5V3.5c0-.83-.67-1.5-1.5-1.5S10 2.67 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/></symbol>
+<symbol id="i-car" viewBox="0 0 32 16"><path d="M1.5 11 L3.5 7 Q4.5 5.5 7 5.2 L10 2.2 Q11 1 13 1 H19.5 Q21.5 1 22.8 2.4 L25.5 5.4 L28.5 6 Q30.5 6.5 30.5 8.5 V11.5 Q30.5 12.5 29.5 12.5 H2.5 Q1.5 12.5 1.5 11Z"/><circle cx="9" cy="12.5" r="3" stroke="#fff" stroke-width="1.2"/><circle cx="23" cy="12.5" r="3" stroke="#fff" stroke-width="1.2"/></symbol>
+<symbol id="i-tree" viewBox="0 0 24 24"><polygon points="12,1 18,9 15,9 20,16 14,16 14,22 10,22 10,16 4,16 9,9 6,9"/></symbol></defs></svg>
+<section class="viz" id="viz" aria-labelledby="viz-h"><h2 id="viz-h" style="font-size:clamp(28px,5vw,40px);margin:0 0 8px">552 Tons of CO2: Try It</h2>
+<p class="cap">One training run of GPT-3 (2020) produced 552 tons of CO2e. Pick a comparison, then see what your own prompts add up to.</p>
+<fieldset class="seg"><legend>Show 552 tons as</legend>
+<label><input type="radio" name="unit" value="flights" checked><span>Flights</span></label>
+<label><input type="radio" name="unit" value="cars"><span>Cars</span></label>
+<label><input type="radio" name="unit" value="trees"><span>Tree-years</span></label></fieldset>
+<div class="big" id="big" aria-hidden="true">560</div>
+<p id="bigtext" class="cap" aria-live="polite"></p>
+<svg id="dots" class="dots" role="img" aria-label="Chart of the selected comparison"></svg>
+<h3>Your own prompts</h3>
+<div class="row"><label for="ppd">Prompts per day: <span id="ppdv">20</span></label><input id="ppd" type="range" min="0" max="200" value="20"></div>
+<fieldset class="seg"><legend>CO2 per prompt</legend>
+<label><input type="radio" name="est" value="4.55" checked><span>4.55 g (handout estimate)</span></label>
+<label><input type="radio" name="est" value="0.03"><span>0.03 g (Google, measured)</span></label></fieldset>
+<div class="out" aria-live="polite">
+<div class="card"><span>Per day</span><b id="o-day"></b></div>
+<div class="card"><span>Per year</span><b id="o-year"></b></div>
+<div class="card"><span>Share of one NYC to London flight (986 kg)</span><b id="o-flight"></b><div class="bar"><i id="o-bar"></i></div></div>
+<div class="card"><span>Years of this to equal one training run</span><b id="o-years"></b></div></div>
+<p class="small">Training only. It leaves out chip manufacturing, water for cooling, and the daily use that comes after training. Sources: Patterson et al. (2021) for 552 tons; EPA for 4.6 tons per car per year; Arbor Day Foundation for about 22 kg per tree per year; the assignment handout for 986 kg per flight and 4.55 g per prompt; Google (2025) for 0.03 g per prompt.</p>
+</section><noscript><p>Turn on JavaScript to use the interactive piece.</p></noscript>
+<section id="artifact"><h2>The Artifact</h2><p>This interactive page and its static infographic take one number, the 552 tons of CO2 it took to train GPT-3 once, and turns it into things you can picture. A grid of 560 red dots shows 560 one-way flights from New York to London, one dot per seat. A smaller grid of 120 dots shows 120 cars driven for a full year. A row of 25 blocks shows 25 years of 1,000 mature trees working to absorb the same amount. The bottom section shows the number nobody agrees on: the handout's estimate of 4.55 grams of CO2 per chatbot query next to Google's measured 0.03 grams for a median Gemini prompt. That is about a 150x gap, and the picture shows it as one wide bar next to a sliver. In the interactive version, you switch the 552 tons between flights, cars, and tree-years, then set your own prompts per day with a slider and pick either per-prompt estimate. It shows your CO2 per day and per year, your share of one flight, and how many years of your prompting equal one training run.</p></section>
+<section id="research"><h2>Research Documentation</h2><p>My main number comes from Patterson et al. (2021), a paper by Google and UC Berkeley researchers that measured GPT-3's training at 552 tons of CO2e and 1,287 MWh of electricity. For the comparisons I used the EPA figure of 4.6 tons per year for a typical passenger car, the Arbor Day Foundation figure of about 22 kg (48 lbs) of CO2 absorbed per mature tree per year, and the 986 kg New York to London flight number from the assignment handout. For per-query emissions I compared the handout's 4.55 g estimate with Google's 2025 report on Gemini, which measured a median text prompt at 0.03 g CO2e, 0.24 Wh, and 0.26 mL of water.</p><p>The hardest data to find was per-query emissions for ChatGPT. OpenAI does not publish them, so every number is an outside estimate. The only company-measured figure I found was Google's, and it covers a different product. Training numbers for newer models like GPT-4 are also unpublished, so those are researcher guesses.</p><p>The biggest uncertainty is the per-query gap, about 150x between the two numbers. Flights are uncertain too. Calculators gave anywhere from about 500 kg to over 1,300 kg per passenger depending on seat class and whether non-CO2 effects count, so my 560 flights could really be 400 to 1,100. The 48 pounds per tree claim is everywhere, but it is an average that is hard to trace to one study. Google's carbon figure also uses market-based accounting, which counts clean energy purchases and makes it look lower than a plain grid average.</p></section>
+<section id="statement"><h2>Artist Statement</h2><p>The cost that concerns me most is the one I cannot see. When I type a prompt, nothing on my screen shows me the power plant, the cooling system, and the chip factory behind it. Kate Crawford calls the cloud a metaphor that hides a physical machine. This infographic made it real for me. Five hundred and sixty dots of airplane seats hit harder than the words "552 tons."</p><p>What surprised me most was the gap between 4.55 grams and 0.03 grams of CO2 per query. I expected one answer and found a 150x disagreement. The real problem is missing data. If companies do not share what a model costs, none of us can make an informed choice.</p><p>Can AI be sustainable? I think it can get closer, but not on its own. It would take clean power for data centers, smaller and more efficient models, honest public reporting of energy and water per model, and local communities having a say in where data centers go. Efficiency alone is not enough: Google reports a 44x drop in carbon per prompt in one year, which is great, but when something gets cheaper, people use more of it.</p><p>My responsibility is smaller than a company's, but it is not zero. I use AI for school, for my business ideas, and for this class. I can stop sending prompts out of habit and ask for the numbers.</p></section>
+<section id="webpage"><h2>Sustainability &amp; Ethics Web Page</h2>
+<h3>My Research</h3><p>I looked at the carbon cost of training a large AI model. The best measured number I found is 552 tons of CO2e to train GPT-3 once, from a 2021 paper by Google and UC Berkeley researchers. That equals about 560 one-way flights from New York to London, 120 cars driven for a year, or 25,000 tree-years of absorption. The cost of a single prompt is much harder to pin down. The handout estimate is 4.55 g of CO2 per query, while Google measured 0.03 g for a median Gemini prompt. Training is only part of the picture, since it leaves out chip manufacturing, water for cooling, and everyday use.</p>
+<h3>Data Sources</h3><ul><li>Patterson, D. et al. (2021). Carbon Emissions and Large Neural Network Training. <a href="https://arxiv.org/abs/2104.10350">https://arxiv.org/abs/2104.10350</a></li><li>Google (2025). Measuring the environmental impact of AI inference. <a href="https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference">https://cloud.google.com/blog/products/infrastructure/measuring-the-environmental-impact-of-ai-inference</a></li><li>U.S. EPA. Greenhouse Gas Emissions from a Typical Passenger Vehicle. <a href="https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle">https://www.epa.gov/greenvehicles/greenhouse-gas-emissions-typical-passenger-vehicle</a></li><li>Arbor Day Foundation. Tree Facts. <a href="https://arborday.org/trees/treefacts/">https://arborday.org/trees/treefacts/</a></li><li>Flight emissions: 986 kg per passenger from the AI &amp; Ecology assignment handout, cross-checked against online calculators that range from about 500 kg to 1,300 kg one way.</li><li>Crawford, K. (2021). Atlas of AI. Yale University Press.</li></ul>
+<h3>Personal Reflection</h3><p><strong>My AI use habits. </strong>I use AI most days. It helps me with schoolwork, planning business ideas like The Edited Look, and my weekly DH makes. Most of it is text prompts, and I do not make much AI video or music.</p><p><strong>Estimated impact.</strong> If I send about 20 prompts a day, that is about 0.6 g of CO2 a day at Google's number, or about 91 g a day at the handout's number. Over a year that is roughly 0.2 kg to 33 kg. One flight from New York to London is 986 kg. So my own prompting is small next to a single flight, but my number could be wrong by a lot, and it leaves out the training cost that every user shares in.</p><p><strong>What I'm willing to change. </strong>I can stop sending prompts out of habit, bundle my questions into one longer prompt, and skip AI for things I can do in a minute myself. I can also keep asking which tools publish their energy numbers.</p><p><strong>What I can't or won't change, and why. I w</strong>ill keep using AI for school and for my business. It is how I learn and build faster, and my DH class asks us to use it. Giving that up would cost me more than it would save the planet, and my small share is not what moves the total.</p>
+<h3>Systemic vs. Individual</h3><p><strong>What can individuals d</strong>o? Use AI on purpose, pick lighter tools for simple tasks, and push for numbers. Individual choices also set norms for classmates and friends.</p><p><strong>What requires systemic change</strong>? Clean power for data centers, public reporting of energy and water use per model, rules on where data centers can be built and who pays for the water and grid upgrades, and chip and hardware recycling. None of that is something one student can do.</p><p><strong>Who is responsible?</strong> Mostly the companies that train and run the models, and the governments that regulate energy and water. Users share some responsibility, but we cannot act on numbers nobody publishes.</p></section>
+<section id="attribution"><h2>Attribution &amp; AI Use</h2><ul><li><strong>AI Tool:</strong> Claude</li><li><strong>AI Role:</strong> Research and drafting, not final authorship. All statistics come from the sources listed above;</li></ul></section>
+</main><script>
+(function(){
+var T=552000000; // grams in 552 tons
+var UNITS={
+ flights:{n:560,big:"560",txt:"560 one-way flights from New York to London. Each plane is one passenger seat at 986 kg of CO2.",cols:40},
+ cars:{n:120,big:"120",txt:"120 typical US cars driven for a full year. Each car is one vehicle at 4.6 tons of CO2 per year (EPA).",cols:40},
+ trees:{n:25,big:"25,000",txt:"25,000 tree-years of CO2 absorption. Each tree stands for one year of 1,000 mature trees (about 22 kg of CO2 each per year). 25 trees is one training run.",cols:25}};
+var svg=document.getElementById("dots"),NS="http://www.w3.org/2000/svg";
+function draw(k){var u=UNITS[k],w=1200,h,i,el,c,r,x,y,pw,ph,sym,gx,gy;svg.innerHTML="";
+ if(k==="flights"){sym="i-plane";c=40;gx=30;gy=30;pw=26;ph=26;}
+ else if(k==="cars"){sym="i-car";c=20;gx=60;gy=40;pw=48;ph=24;}
+ else{sym="i-tree";c=25;gx=48;gy=60;pw=42;ph=50;}
+ h=Math.ceil(u.n/c)*gy+8;svg.setAttribute("viewBox","0 0 "+w+" "+h);
+ for(i=0;i<u.n;i++){x=(i%c)*gx+(gx-pw)/2;y=Math.floor(i/c)*gy+4;
+  el=document.createElementNS(NS,"use");el.setAttribute("href","#"+sym);el.setAttribute("x",x);el.setAttribute("y",y);el.setAttribute("width",pw);el.setAttribute("height",ph);el.setAttribute("fill","#b3202a");svg.appendChild(el);}
+ document.getElementById("big").textContent=u.big;document.getElementById("bigtext").textContent=u.big+" "+u.txt.replace(/^[0-9,]+ /,"");
+ svg.setAttribute("aria-label",u.txt);}
+function fmt(x,d){return x.toLocaleString("en-US",{maximumFractionDigits:d});}
+function calc(){var p=+document.getElementById("ppd").value,e=+document.querySelector('input[name=est]:checked').value;
+ document.getElementById("ppdv").textContent=p;var day=p*e,yr=day*365;
+ document.getElementById("o-day").textContent=day<1000?fmt(day,2)+" g":fmt(day/1000,2)+" kg";
+ document.getElementById("o-year").textContent=yr<1000?fmt(yr,1)+" g":fmt(yr/1000,1)+" kg";
+ var pct=yr/1000/986*100;document.getElementById("o-flight").textContent=fmt(pct,pct<1?2:1)+"%";
+ document.getElementById("o-bar").style.width=Math.min(100,pct)+"%";
+ document.getElementById("o-years").textContent=yr>0?fmt(T/yr,0):"No prompts, no CO2";}
+document.querySelectorAll('input[name=unit]').forEach(function(r){r.addEventListener("change",function(){draw(r.value);});});
+document.querySelectorAll('input[name=est]').forEach(function(r){r.addEventListener("change",calc);});
+document.getElementById("ppd").addEventListener("input",calc);
+draw("flights");calc();
+})();
+</script></body></html>
